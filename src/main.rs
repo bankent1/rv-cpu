@@ -1,3 +1,5 @@
+mod lgates;
+
 fn main() {
-    println!("Hello, world!");
+    println!("Hello, cpu!");
 }

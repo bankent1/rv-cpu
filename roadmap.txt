@@ -4,7 +4,7 @@ Format:
 	[ implementation ] [ test ] Task
 
 < Logic Gates (Single byte) >
-	[ ] [ ] AND 
+	[X] [X] AND 
 	[ ] [ ] OR
 	[ ] [ ] XOR
 	[ ] [ ] NOT
