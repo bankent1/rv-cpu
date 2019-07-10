@@ -5,7 +5,7 @@ Format:
 
 < Logic Gates (Single byte) >
 	[X] [X] AND 
-	[ ] [ ] OR
+	[X] [X] OR
 	[ ] [ ] XOR
 	[ ] [ ] NOT
 	[ ] [ ] NAND
