@@ -7,7 +7,7 @@ Format:
 	[X] [X] AND 
 	[X] [X] OR
 	[X] [X] XOR
-	[ ] [ ] NOT
+	[X] [X] NOT
 	[ ] [ ] NAND
 	[ ] [ ] NOR
 	...
