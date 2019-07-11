@@ -20,7 +20,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_byte_eq() {
+    fn test_byte() {
         let or1 = Or(0b1, 0b1);
         assert_eq!(or1.execute(), 0b1 | 0b1);
 

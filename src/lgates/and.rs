@@ -19,7 +19,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_byte_eq() {
+    fn test_byte() {
         let and1 = And(0b1, 0b1);
         assert_eq!(and1.execute(), 0b1 & 0b1);
 
