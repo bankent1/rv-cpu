@@ -10,8 +10,6 @@ Format:
 	[ ] [ ] SUB
 	[ ] [ ] LESS
 	[ ] [ ] XOR
-	[ ] [ ] NAND
-	[ ] [ ] NOR
 	...
 
 < Data Memory >
