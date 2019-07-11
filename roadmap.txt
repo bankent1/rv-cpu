@@ -4,12 +4,12 @@ Format:
 	[ implementation ] [ test ] Task
 
 < ALU >
-	[ ] [ ] AND
-	[ ] [ ] OR
-	[ ] [ ] ADD
-	[ ] [ ] SUB
-	[ ] [ ] LESS
-	[ ] [ ] XOR
+	[X] [X] AND
+	[X] [X] OR
+	[X] [X] ADD
+	[X] [X] SUB
+	[X] [X] LESS
+	[X] [X] XOR
 	...
 
 < Data Memory >

@@ -14,8 +14,6 @@
  *  5) XOR
  */
 
-use u32;
-
 struct Alu(u32, u32);
 
 impl Alu {
