@@ -9,7 +9,7 @@ Format:
 	[X] [X] XOR
 	[X] [X] NOT
 	[X] [X] NAND
-	[ ] [ ] NOR
+	[X] [X] NOR
 	...
 	 
 
