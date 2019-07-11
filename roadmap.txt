@@ -3,32 +3,28 @@
 Format:
 	[ implementation ] [ test ] Task
 
-< Logic Gates (Single byte) >
-	[X] [X] AND 
-	[X] [X] OR
-	[X] [X] XOR
-	[X] [X] NOT
-	[X] [X] NAND
-	[X] [X] NOR
-	...
-	 
-
-< Logic Gates (32-bit) >
-	[ ] [ ] AND-32
-	[ ] [ ] OR-32
-	[ ] [ ] XOR-32
-	[ ] [ ] NOT-32
-	[ ] [ ] NAND-32
-	[ ] [ ] NOR-32
+< ALU >
+	[ ] [ ] AND
+	[ ] [ ] OR
+	[ ] [ ] ADD
+	[ ] [ ] SUB
+	[ ] [ ] LESS
+	[ ] [ ] XOR
+	[ ] [ ] NAND
+	[ ] [ ] NOR
 	...
 
-< Adder >
-	[ ] [ ] Ripple-Adder (byte)
-	[ ] [ ] Ripple-Adder (32-bit)
+< Data Memory >
+	[ ] [ ] Read Address
+	[ ] [ ] Write Address
 	...
 
-< Mux >
-	[ ] [ ] Mux???
+< Registers >
+	[ ] [ ] $0 - $zero
 	...
+	[ ] [ ] $31 - ???
 
- 
+< Instruction Memory >
+	[ ] [ ] Load Instruction
+	[ ] [ ] Fetch Instruction
+	...
