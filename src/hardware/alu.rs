@@ -13,6 +13,7 @@
  *  4) LESS
  *  5) XOR
  */
+#![allow(dead_code)]
 
 struct Alu(u32, u32);
 
