@@ -18,6 +18,9 @@ Format:
 	...
 
 < Registers >
+	[ ] [ ] write reg
+	[ ] [ ] load reg
+	...
 	[ ] [ ] $0  - $zero
 	[ ] [ ] $1  - $at
 	[ ] [ ] $2  - $v0
