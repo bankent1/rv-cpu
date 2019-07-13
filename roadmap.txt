@@ -13,8 +13,8 @@ Format:
 	...
 
 < Data Memory >
-	[ ] [ ] Read Address
-	[ ] [ ] Write Address
+	[X] [X] Read Address
+	[X] [X] Write Address
 	...
 
 < Registers >
