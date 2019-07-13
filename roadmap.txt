@@ -23,6 +23,6 @@ Format:
 	...
 
 < Instruction Memory >
-	[ ] [ ] Load Instruction
-	[ ] [ ] Fetch Instruction
+	[X] [X] Load Instruction
+	[X] [X] Fetch Instruction
 	...

@@ -1,9 +1,10 @@
 /*
- * data_mem.rs
+ * instr_mem.rs
  * 
  * Author: Travis Banken
  * 
- * Memory unit for data
+ * Instruction memory for the processor.
+ * 
  */
 #![allow(dead_code)]
 
@@ -21,35 +22,35 @@ impl Memory {
     }
 
     /*
-     * Reads a value from the given address.
+     * Read a byte from memory. 
      * 
-     * Will panic if address does not exist.
+     * Will panic if address is outside size of memory.
      */
     pub fn read(&self, addr: usize) -> u8 {
         if addr > MEM_SIZE {
             let addr_hex = format!("{:x}", addr);
-            panic!("Mem-Error (Data): Tried to access 
-                    non-existant address: 0x{}", addr_hex);
+            panic!("Mem-Error (Instruction): Tried to access
+                     non-existant memory: 0x{}", addr_hex);
         }
         self.mem[addr]
     }
 
     /*
-     * Writes value into address. 
+     * Write a byte into memory. 
      * 
-     * Will panic if address does not exist.
+     * Will panic if address is outside size of memory.
      */
     pub fn write(&mut self, value: u8, addr: usize) {
         if addr > MEM_SIZE {
             let addr_hex = format!("{:x}", addr);
-            panic!("Mem-Error (Data): Tried to access 
-                    non-existant address: 0x{}", addr_hex);
+            panic!("Mem-Error (Instruction): Tried to access
+                     non-existant memory: 0x{}", addr_hex);
         }
         self.mem[addr] = value;
     }
 
     /*
-     * Return size of memory
+     * get size of memory
      */
     pub fn get_size() -> usize {
         MEM_SIZE
@@ -91,4 +92,3 @@ mod tests {
         mem.write(34, 0xdeadbeef);
     }
 }
-
