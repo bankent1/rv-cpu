@@ -9,7 +9,7 @@
 
 const MEM_SIZE: usize = 256;
 
-struct Memory {
+pub struct Memory {
     mem: [u8; MEM_SIZE]
 }
 

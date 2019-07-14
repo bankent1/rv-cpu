@@ -10,7 +10,7 @@
 
 const MEM_SIZE: usize = 256;
 
-struct Memory {
+pub struct Memory {
     mem: [u8; MEM_SIZE]
 }
 
@@ -28,9 +28,8 @@ impl Memory {
      */
     pub fn read(&self, addr: usize) -> u8 {
         if addr > MEM_SIZE {
-            let addr_hex = format!("{:x}", addr);
             panic!("Mem-Error (Instruction): Tried to access
-                     non-existant memory: 0x{}", addr_hex);
+                     non-existant memory: 0x{:x}", addr);
         }
         self.mem[addr]
     }
@@ -42,9 +41,8 @@ impl Memory {
      */
     pub fn write(&mut self, value: u8, addr: usize) {
         if addr > MEM_SIZE {
-            let addr_hex = format!("{:x}", addr);
             panic!("Mem-Error (Instruction): Tried to access
-                     non-existant memory: 0x{}", addr_hex);
+                     non-existant memory: 0x{:x}", addr);
         }
         self.mem[addr] = value;
     }

@@ -21,7 +21,7 @@
 
 #![allow(dead_code)]
 
-struct Registers {
+pub struct Registers {
     registers: [u32; 32]
 }
 

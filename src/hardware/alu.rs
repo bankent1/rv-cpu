@@ -15,7 +15,7 @@
  */
 #![allow(dead_code)]
 
-struct Alu(u32, u32);
+pub struct Alu(u32, u32);
 
 impl Alu {
     pub fn new(in1: u32, in2: u32) -> Alu {

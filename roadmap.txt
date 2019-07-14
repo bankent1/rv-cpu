@@ -29,10 +29,10 @@ Format:
 	[X] [X] Fetch Instruction
 	...
 
-<< Logic >>
+<< Single Cycle >>
 
 < CPU Instruction Cycle >
-	[ ] [ ] fetch instruction
+	[X] [X] fetch instruction
 	[ ] [ ] decode instruction
 	[ ] [ ] execute
 	[ ] [ ] mem
