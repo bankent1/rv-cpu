@@ -3,6 +3,8 @@
 Format:
 	[ implementation ] [ test ] Task
 
+<< HARDWARE >>
+
 < ALU >
 	[X] [X] AND
 	[X] [X] OR
@@ -26,3 +28,18 @@ Format:
 	[X] [X] Load Instruction
 	[X] [X] Fetch Instruction
 	...
+
+<< Logic >>
+
+< CPU Instruction Cycle >
+	[ ] [ ] fetch instruction
+	[ ] [ ] decode instruction
+	[ ] [ ] execute
+	[ ] [ ] mem
+	[ ] [ ] write back
+
+< Clock > ???
+	[ ] [ ] tick
+
+< Main >
+	[ ] [ ] main
