@@ -33,7 +33,7 @@ Format:
 
 < CPU Instruction Cycle >
 	[X] [X] fetch instruction
-	[ ] [ ] decode instruction
+	[X] [X] decode instruction
 	[ ] [ ] execute
 	[ ] [ ] mem
 	[ ] [ ] write back
