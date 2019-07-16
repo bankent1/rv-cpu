@@ -1,6 +1,6 @@
 mod hardware;
 mod instruction;
-mod single_cycle;
+mod phases;
 
 fn main() {
     println!("Hello, cpu!");

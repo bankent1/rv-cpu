@@ -43,7 +43,21 @@ pub fn instr_decode(instr_raw: u32, instr_struct: &mut Instruction) {
     instr_struct.addr = (instr_raw >> 0) & 0x3f_ffff;
 }
 
-// TODO: Execute
+/*
+ * Executes the given operation on the given inputs.
+ */
+pub fn execute_alu(alu_op: u8, alu_in1: u32, alu_in2: u32) -> u32 {
+    let alu = alu::Alu::new(alu_in1, alu_in2);
+    match alu_op {
+        0 => alu.and(),
+        1 => alu.or(),
+        2 => alu.add(),
+        3 => alu.sub(),
+        4 => alu.less(),
+        5 => alu.xor(),
+        _ => 0 // NOP
+    }
+}
 
 // TODO: Memory
 
@@ -77,5 +91,32 @@ mod tests {
         assert_eq!(instr.funct, 0x3f);
         assert_eq!(instr.imm16, 0xffff);
         assert_eq!(instr.addr, 0x3f_ffff);
+    }
+
+    #[test]
+    fn test_execute_alu() {
+        // and
+        let mut res = execute_alu(0, 1, 0);
+        assert_eq!(res, 0);
+
+        // or
+        res = execute_alu(1, 1, 0);
+        assert_eq!(res, 1);
+
+        // add
+        res = execute_alu(2, 1, 1);
+        assert_eq!(res, 2);
+
+        // sub
+        res = execute_alu(3, 3, 2);
+        assert_eq!(res, 1);
+
+        // less
+        res = execute_alu(4, 3, 1);
+        assert_eq!(res, 0);
+
+        // xor
+        res = execute_alu(5, 1, 1);
+        assert_eq!(res, 0);
     }
 }

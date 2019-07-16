@@ -31,10 +31,10 @@ Format:
 
 << Single Cycle >>
 
-< CPU Instruction Cycle >
+< CPU Instruction Cycle Phases >
 	[X] [X] fetch instruction
 	[X] [X] decode instruction
-	[ ] [ ] execute
+	[X] [X] execute
 	[ ] [ ] mem
 	[ ] [ ] write back
 
