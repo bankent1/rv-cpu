@@ -35,7 +35,7 @@ Format:
 	[X] [X] fetch instruction
 	[X] [X] decode instruction
 	[X] [X] execute
-	[ ] [ ] mem
+	[X] [X] mem
 	[ ] [ ] write back
 
 < Clock > ???

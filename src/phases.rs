@@ -59,7 +59,20 @@ pub fn execute_alu(alu_op: u8, alu_in1: u32, alu_in2: u32) -> u32 {
     }
 }
 
-// TODO: Memory
+/*
+ * Writes the given 32-bit val into main mem
+ */
+pub fn mem_phase(mem: &mut data_mem::Memory, addr: usize, alu_res: u32) {
+    let write0 = (alu_res >> 24) as u8;
+    let write1 = (alu_res >> 16) as u8;
+    let write2 = (alu_res >> 8) as u8;
+    let write3 = (alu_res >> 0) as u8;
+
+    mem.write(write0, addr + 0);
+    mem.write(write1, addr + 1);
+    mem.write(write2, addr + 2);
+    mem.write(write3, addr + 3);
+}
 
 // TODO: Write Back
 
