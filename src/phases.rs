@@ -61,6 +61,8 @@ pub fn execute_alu(alu_op: u8, alu_in1: u32, alu_in2: u32) -> u32 {
 
 /*
  * Writes the given 32-bit val into main mem
+ * 
+ * TODO: Revisit for mem-read
  */
 pub fn mem_phase(mem: &mut data_mem::Memory, addr: usize, alu_res: u32) {
     let write0 = (alu_res >> 24) as u8;
@@ -74,7 +76,14 @@ pub fn mem_phase(mem: &mut data_mem::Memory, addr: usize, alu_res: u32) {
     mem.write(write3, addr + 3);
 }
 
-// TODO: Write Back
+/*
+ * Write the given data into the given register
+ * 
+ * TODO: Revisit
+ */
+pub fn write_back(regfile: &mut reg_file::Registers, value: u32, reg: usize) {
+    regfile.write(value, reg);
+}
 
 #[cfg(test)]
 mod tests {
@@ -131,5 +140,24 @@ mod tests {
         // xor
         res = execute_alu(5, 1, 1);
         assert_eq!(res, 0);
+    }
+
+    #[test]
+    fn test_mem_phase() {
+        let mut mem = data_mem::Memory::new();
+        mem_phase(&mut mem, 0, 0x12345678);
+
+        assert_eq!(mem.read(0), 0x12);
+        assert_eq!(mem.read(1), 0x34);
+        assert_eq!(mem.read(2), 0x56);
+        assert_eq!(mem.read(3), 0x78);
+    }
+
+    #[test]
+    fn test_write_back() {
+        let mut regfile = reg_file::Registers::new();
+        write_back(&mut regfile, 1234, 23);
+
+        assert_eq!(regfile.load(23), 1234);
     }
 }
