@@ -1,9 +1,9 @@
 /*
- * single_cycle.rs
+ * phases.rs
  * 
  * Author: Travis Banken
  * 
- * Simulates a single cycle cpu instruction cycle
+ * Contains all of the phases of the cpu cycle
  */
 #![allow(dead_code)]
 
@@ -46,16 +46,16 @@ pub fn instr_decode(instr_raw: u32, instr_struct: &mut Instruction) {
 /*
  * Executes the given operation on the given inputs.
  */
-pub fn execute_alu(alu_op: u8, alu_in1: u32, alu_in2: u32) -> u32 {
-    let alu = alu::Alu::new(alu_in1, alu_in2);
+pub fn execute_alu(alu_op: u8, alu_in1: u32, alu_in2: u32, bnegate: u8) -> u32 {
+    let in2 = if bnegate == 1 {(!alu_in2).overflowing_add(1).0} else {alu_in2};
+    let alu = alu::Alu::new(alu_in1, in2);
     match alu_op {
         0 => alu.and(),
         1 => alu.or(),
         2 => alu.add(),
-        3 => alu.sub(),
-        4 => alu.less(),
-        5 => alu.xor(),
-        _ => 0 // NOP
+        3 => alu.less(),
+        4 => alu.xor(),
+        op => panic!("Error: Alu op [{}] not supported!", op)
     }
 }
 

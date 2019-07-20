@@ -9,9 +9,7 @@
  *  0) AND
  *  1) OR
  *  2) ADD
- *  3) SUB
- *  4) LESS
- *  5) XOR
+ *  3) XOR
  */
 #![allow(dead_code)]
 
@@ -22,26 +20,32 @@ impl Alu {
         Alu(in1, in2)
     }
 
+    // op = 0
     pub fn and(self) -> u32 {
         self.0 & self.1
     }
 
+    // op = 1
     pub fn or(self) -> u32 {
         self.0 | self.1
     }
 
+    // op = 2
     pub fn add(self) -> u32 {
         self.0.overflowing_add(self.1).0
     }
     
-    pub fn sub(self) -> u32 {
-        self.0.overflowing_sub(self.1).0
-    }
+    // // op = 3
+    // pub fn sub(self) -> u32 {
+    //     self.0.overflowing_sub(self.1).0
+    // }
 
+    // op = 3
     pub fn less(self) -> u32 {
-        self.sub() >> 31 
+        self.add() >> 31 
     }
 
+    // op = 4
     pub fn xor(self) -> u32 {
         self.0 ^ self.1
     }
@@ -101,23 +105,23 @@ mod tests {
         assert_eq!(alu_ovrflw.add(), u32::MAX.overflowing_add(u32::MAX).0)
     }
 
-    #[test]
-    fn test_sub() {
-        let alu1 = Alu::new(0b1, 0b1);
-        assert_eq!(alu1.sub(), 0b1 - 0b1);
+    // #[test]
+    // fn test_sub() {
+    //     let alu1 = Alu::new(0b1, 0b1);
+    //     assert_eq!(alu1.sub(), 0b1 - 0b1);
 
-        let alu2 = Alu::new(0b1, 0b0);
-        assert_eq!(alu2.sub(), 0b1 - 0b0);
+    //     let alu2 = Alu::new(0b1, 0b0);
+    //     assert_eq!(alu2.sub(), 0b1 - 0b0);
 
-        let alu3 = Alu::new(0b0, 0b1);
-        assert_eq!(alu3.sub(), (0b0 - 0b1) as u32);
+    //     let alu3 = Alu::new(0b0, 0b1);
+    //     assert_eq!(alu3.sub(), (0b0 - 0b1) as u32);
 
-        let alu4 = Alu::new(0b0, 0b0);
-        assert_eq!(alu4.sub(), 0b0 - 0b0);
+    //     let alu4 = Alu::new(0b0, 0b0);
+    //     assert_eq!(alu4.sub(), 0b0 - 0b0);
 
-        let alu_big = Alu::new(3452, 23555);
-        assert_eq!(alu_big.sub(), (3452 - 23555) as u32);
-    }
+    //     let alu_big = Alu::new(3452, 23555);
+    //     assert_eq!(alu_big.sub(), (3452 - 23555) as u32);
+    // }
 
     #[test]
     fn test_less() {
