@@ -9,6 +9,7 @@
 
 use super::hardware::*;
 use crate::instruction::Instruction;
+use crate::control_bits::ControlBits;
 
 /*
  * Fetch the next instruction from memory
@@ -60,20 +61,27 @@ pub fn execute_alu(alu_op: u8, alu_in1: u32, alu_in2: u32, bnegate: u8) -> u32 {
 }
 
 /*
- * Writes the given 32-bit val into main mem
- * 
- * TODO: Revisit for mem-read
+ * Based on the given control bits, the mem phase will read/write mem or do 
+ * nothing.
  */
-pub fn mem_phase(mem: &mut data_mem::Memory, addr: usize, alu_res: u32) {
-    let write0 = (alu_res >> 24) as u8;
-    let write1 = (alu_res >> 16) as u8;
-    let write2 = (alu_res >> 8) as u8;
-    let write3 = (alu_res >> 0) as u8;
-
-    mem.write(write0, addr + 0);
-    mem.write(write1, addr + 1);
-    mem.write(write2, addr + 2);
-    mem.write(write3, addr + 3);
+pub fn mem_phase(ctrl: &ControlBits, mem: &data_mem::Memory, addr: usize, write_val: u32) -> Option {
+    if ctrl.mem_read == 1 {
+        // read by byte or word
+        if ctrl.mem_by_byte == 1 {
+            return Some(mem.read(addr));
+        } else {
+            return Some(read_word(&mem, addr));
+        }
+    } else if ctrl.mem_write == 1 {
+        // write by byte or word
+        if ctrl.mem_by_byte == 1 {
+            mem.write(write_val as u8, addr);
+        } else {
+            write_word(&mem, write_val, addr);
+        }
+        return None;
+    }
+    return None;
 }
 
 /*
@@ -81,8 +89,33 @@ pub fn mem_phase(mem: &mut data_mem::Memory, addr: usize, alu_res: u32) {
  * 
  * TODO: Revisit
  */
-pub fn write_back(regfile: &mut reg_file::Registers, value: u32, reg: usize) {
-    regfile.write(value, reg);
+pub fn write_back(regfile: &reg_file::Registers, reg_num: usize, ctrl: &ControlBits, wbval: u32) {
+    if ctrl.reg_write == 1 {
+        regfile.write(wbval, reg_num);
+    }
+}
+
+// *** PRIVATE FN ***
+
+fn write_word(mem: &data_mem::Memory, val: u32, addr: usize) {
+    let write0 = (val >> 24) as u8;
+    let write1 = (val >> 16) as u8;
+    let write2 = (val >> 8) as u8;
+    let write3 = (val >> 0) as u8;
+
+    mem.write(write0, addr + 0);
+    mem.write(write1, addr + 1);
+    mem.write(write2, addr + 2);
+    mem.write(write3, addr + 3);
+}
+
+fn read_word(mem: &data_mem::Memory, addr: usize) -> u32 {
+    let read0 = mem.read(addr + 0) as u32;
+    let read1 = mem.read(addr + 1) as u32;
+    let read2 = mem.read(addr + 2) as u32;
+    let read3 = mem.read(addr + 3) as u32;
+
+    return (read0 << 24) & (read1 << 16) & (read2 << 8) & (read3 << 0);
 }
 
 #[cfg(test)]

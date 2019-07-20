@@ -5,7 +5,7 @@
  * 
  * Completes a single cycle on the cpu
  */
-#[allow(dead_code)]
+#![allow(dead_code)]
 
 use crate::hardware::*;
 use crate::phases::*;
@@ -18,6 +18,8 @@ pub fn start(debug: bool) {
     }
 
     let instr_mem = instr_mem::Memory::new();
+    let regfile = reg_file::Registers::new();
+    let data_mem = data_mem::Memory::new();
 
     let mem_size = instr_mem::Memory::get_size();
     let ip = 0;
@@ -43,11 +45,42 @@ pub fn start(debug: bool) {
         //  - get alu op
         //  - execute
         //  - not result?
+        let alu_in1 = get_alu_in1(&regfile, &instr_struct);
+        let alu_in2 = get_alu_in2(&regfile, &instr_struct, &ctrl_bits);
+        
+        let alu_res = execute_alu(ctrl_bits.alu_op, alu_in1, alu_in2, ctrl_bits.alu_bnegate);
+
+        // not the res of alu if ctrl bit is on
+        let alu_res = if ctrl_bits.not_res == 1 {!alu_res & 0x1} else {alu_res};
 
 
         // TODO: mem phase
+        let write_val = regfile.load(instr_struct.rt as usize);
+        let wbval = match mem_phase(&ctrl_bits, &data_mem, alu_res as usize, write_val) {
+            Some(res) => res,
+            None => 0
+        };
 
         // TODO: write back phase
+        //  - determine wbval
+        //  - determine reg num
+        let wbval = if ctrl_bits.mem_to_reg == 1 {wbval} else {alu_res};
+        let reg_num = if ctrl_bits.reg_dst == 1 {instr_struct.rd} else {instr_struct.rt};
+        write_back(&regfile, reg_num as usize, &ctrl_bits, wbval);
+    }
+}
+
+fn get_alu_in1(regfile: &reg_file::Registers, instr: &Instruction) -> u32 {
+    let reg_num = instr.rs as usize;
+    return regfile.load(reg_num);
+}
+
+fn get_alu_in2(regfile: &reg_file::Registers, instr: &Instruction, ctrl: &ControlBits) -> u32 {
+    // TODO: support unsigned imm
+    if ctrl.reg_dst == 1 {
+        return instr.imm16 as u32;
+    } else {
+        return regfile.load(instr.rt as usize);
     }
 }
 

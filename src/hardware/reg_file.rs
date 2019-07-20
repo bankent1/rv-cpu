@@ -35,7 +35,7 @@ impl Registers {
     /*
      * Loads value from register.
      */
-    pub fn load(&mut self, reg_num: usize) -> u32 {
+    pub fn load(&self, reg_num: usize) -> u32 {
         self.registers[reg_num]
     }
 
