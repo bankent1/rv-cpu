@@ -41,7 +41,7 @@ pub fn instr_decode(instr_raw: u32, instr_struct: &mut Instruction) {
     instr_struct.imm16 = ((instr_raw >> 0) & 0xffff) as u16;
 
     // j-format
-    instr_struct.addr = (instr_raw >> 0) & 0x3f_ffff;
+    instr_struct.addr = (instr_raw >> 0) & 0x03ff_ffff;
 }
 
 /*
@@ -145,7 +145,7 @@ mod tests {
         assert_eq!(instr.shamt, 0x1f);
         assert_eq!(instr.funct, 0x3f);
         assert_eq!(instr.imm16, 0xffff);
-        assert_eq!(instr.addr, 0x3f_ffff);
+        assert_eq!(instr.addr, 0x03ff_ffff);
     }
 
     #[test]
