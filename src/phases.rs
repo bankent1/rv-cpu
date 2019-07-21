@@ -86,8 +86,6 @@ pub fn mem_phase(ctrl: &ControlBits, mem: &mut data_mem::Memory, addr: usize, wr
 
 /*
  * Write the given data into the given register
- * 
- * TODO: Revisit
  */
 pub fn write_back(regfile: &mut reg_file::Registers, reg_num: usize, ctrl: &ControlBits, wbval: u32) {
     if ctrl.reg_write == 1 {
@@ -115,7 +113,7 @@ fn read_word(mem: &data_mem::Memory, addr: usize) -> u32 {
     let read2 = mem.read(addr + 2) as u32;
     let read3 = mem.read(addr + 3) as u32;
 
-    return (read0 << 24) & (read1 << 16) & (read2 << 8) & (read3 << 0);
+    return (read0 << 24) | (read1 << 16) | (read2 << 8) | (read3 << 0);
 }
 
 #[cfg(test)]
@@ -177,11 +175,102 @@ mod tests {
 
     #[test]
     fn test_mem_phase() {
-        // TODO: Write tests
+        let mut mem = data_mem::Memory::new();
+
+        // test reads
+        let ctrl_read_word = ControlBits {
+            alu_op: 0,
+            alu_bnegate: 0,
+
+            mem_read: 1,
+            mem_write: 0,
+            mem_to_reg: 1,
+
+            reg_dst: 0,
+            reg_write: 1,
+
+            branch: 0,
+            jump: 0,
+
+            not_res: 0,
+            mem_by_byte: 0,
+        };
+        mem.write(0x12, 0x0);
+        mem.write(0x34, 0x1);
+        mem.write(0x56, 0x2);
+        mem.write(0x78, 0x3);
+        let readval_word = match mem_phase(&ctrl_read_word, &mut mem, 0x0, 0) {
+            Some(val) => val,
+            None => 0
+        };
+        assert_eq!(readval_word, 0x12345678);
+
+        let ctrl_read_byte = ControlBits {
+            mem_by_byte: 1,
+            ..ctrl_read_word
+        };
+        let readval_byte = match mem_phase(&ctrl_read_byte, &mut mem, 0x0, 0) {
+            Some(val) => val,
+            None => 0
+        };
+        assert_eq!(readval_byte, 0x12);
+
+        // test writes
+        let ctrl_write_word = ControlBits {
+            mem_read: 0,
+            mem_write: 1,
+            mem_to_reg: 0,
+            ..ctrl_read_word
+        };
+        mem_phase(&ctrl_write_word, &mut mem, 0x4, 0xdeadbeef);
+        let read0 = mem.read(0x4) as u32;
+        let read1 = mem.read(0x5) as u32;
+        let read2 = mem.read(0x6) as u32;
+        let read3 = mem.read(0x7) as u32;
+        let read32 = (read0 << 24) | (read1 << 16) | (read2 << 8) | (read3 << 0);
+        assert_eq!(read32, 0xdeadbeef);
+
+        let ctrl_write_byte = ControlBits {
+            mem_by_byte: 1,
+            ..ctrl_write_word
+        };
+        mem_phase(&ctrl_write_byte, &mut mem, 0x4, 0x66);
+        assert_eq!(mem.read(0x4), 0x66);
+        assert_eq!(mem.read(0x5), 0xad);
     }
 
     #[test]
     fn test_write_back() {
-        // TODO: Write tests
+        let mut regfile = reg_file::Registers::new();
+
+        let ctrl_write = ControlBits {
+            alu_op: 0,
+            alu_bnegate: 0,
+
+            mem_read: 0,
+            mem_write: 0,
+            mem_to_reg: 0,
+
+            reg_dst: 0,
+            reg_write: 1,
+
+            branch: 0,
+            jump: 0,
+
+            not_res: 0,
+            mem_by_byte: 0,
+        };
+        write_back(&mut regfile, 11, &ctrl_write, 45);
+        assert_eq!(regfile.load(11), 45);
+
+
+        let ctrl_no_write = ControlBits {
+            reg_write: 0,
+            ..ctrl_write
+        };
+        write_back(&mut regfile, 12, &ctrl_no_write, 45);
+        assert_ne!(regfile.load(12), 45);
+        
+
     }
 }
