@@ -24,14 +24,10 @@ pub fn start(instr_mem: &instr_mem::Memory, debug: bool) {
     let mem_size = instr_mem::Memory::get_size();
     let mut ip: u32 = 0;
     while ip < mem_size as u32 {
-        // TODO: Execute instructions
-
-        // TODO: Fetch instruction
+        // Fetch instruction
         let instr_raw = instr_fetch(&instr_mem, ip as usize);
 
-        // TODO: decode instruction
-        //  - decode instruction
-        //  - fill control bits
+        // decode instruction
         let mut instr_struct = Instruction::default();
         instr_decode(instr_raw, &mut instr_struct);
         
@@ -39,12 +35,7 @@ pub fn start(instr_mem: &instr_mem::Memory, debug: bool) {
         fill_control_bits(&mut ctrl_bits, &instr_struct);
 
 
-        // TODO: execute alu
-        //  - get alu input 1
-        //  - get alu input 2
-        //  - get alu op
-        //  - execute
-        //  - not result?
+        // Execute alu
         let alu_in1 = get_alu_in1(&regfile, &instr_struct);
         let alu_in2 = get_alu_in2(&regfile, &instr_struct, &ctrl_bits);
         
@@ -54,16 +45,14 @@ pub fn start(instr_mem: &instr_mem::Memory, debug: bool) {
         let alu_res = if ctrl_bits.not_res == 1 {!alu_res & 0x1} else {alu_res};
 
 
-        // TODO: mem phase
+        // mem phase
         let write_val = regfile.load(instr_struct.rt as usize);
         let wbval = match mem_phase(&ctrl_bits, &mut data_mem, alu_res as usize, write_val) {
             Some(res) => res,
             None => 0
         };
 
-        // TODO: write back phase
-        //  - determine wbval
-        //  - determine reg num
+        // write back phase
         let wbval = if ctrl_bits.mem_to_reg == 1 {wbval} else {alu_res};
         let reg_num = if ctrl_bits.reg_dst == 1 {instr_struct.rd} else {instr_struct.rt};
         write_back(&mut regfile, reg_num as usize, &ctrl_bits, wbval);
