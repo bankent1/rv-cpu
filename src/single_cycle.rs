@@ -12,22 +12,22 @@ use crate::phases::*;
 use crate::instruction::Instruction;
 use crate::control_bits::ControlBits;
 
-pub fn start(debug: bool) {
+pub fn start(instr_mem: &instr_mem::Memory, debug: bool) {
     if debug {
         println!("Debug Mode: ON");
     }
 
-    let instr_mem = instr_mem::Memory::new();
-    let regfile = reg_file::Registers::new();
-    let data_mem = data_mem::Memory::new();
+    // let mut instr_mem = instr_mem::Memory::new();
+    let mut regfile = reg_file::Registers::new();
+    let mut data_mem = data_mem::Memory::new();
 
     let mem_size = instr_mem::Memory::get_size();
-    let ip = 0;
-    while ip < mem_size {
+    let mut ip: u32 = 0;
+    while ip < mem_size as u32 {
         // TODO: Execute instructions
 
         // TODO: Fetch instruction
-        let instr_raw = instr_fetch(&instr_mem, ip);
+        let instr_raw = instr_fetch(&instr_mem, ip as usize);
 
         // TODO: decode instruction
         //  - decode instruction
@@ -56,7 +56,7 @@ pub fn start(debug: bool) {
 
         // TODO: mem phase
         let write_val = regfile.load(instr_struct.rt as usize);
-        let wbval = match mem_phase(&ctrl_bits, &data_mem, alu_res as usize, write_val) {
+        let wbval = match mem_phase(&ctrl_bits, &mut data_mem, alu_res as usize, write_val) {
             Some(res) => res,
             None => 0
         };
@@ -66,7 +66,18 @@ pub fn start(debug: bool) {
         //  - determine reg num
         let wbval = if ctrl_bits.mem_to_reg == 1 {wbval} else {alu_res};
         let reg_num = if ctrl_bits.reg_dst == 1 {instr_struct.rd} else {instr_struct.rt};
-        write_back(&regfile, reg_num as usize, &ctrl_bits, wbval);
+        write_back(&mut regfile, reg_num as usize, &ctrl_bits, wbval);
+
+        // calculate new ip val
+        let addr = if ctrl_bits.branch == 1 {
+            instr_struct.imm16 as u32
+        } else if ctrl_bits.jump == 1 {
+            instr_struct.addr
+        } else {
+            0 // addr not needed
+        };
+
+        ip = calc_ip(&ctrl_bits, ip, addr);
     }
 }
 
@@ -81,6 +92,16 @@ fn get_alu_in2(regfile: &reg_file::Registers, instr: &Instruction, ctrl: &Contro
         return instr.imm16 as u32;
     } else {
         return regfile.load(instr.rt as usize);
+    }
+}
+
+fn calc_ip(ctrl: &ControlBits, ip: u32, addr: u32) -> u32 {
+    if ctrl.branch == 1 {
+        return (ip & 0xffff_0000) | addr; // addr only 16 bits max
+    } else if ctrl.jump == 1 {
+        return (ip & 0xf000_0000) | (addr << 2); // addr 28 bit max 
+    } else {
+        return ip + 4;
     }
 }
 

@@ -34,11 +34,6 @@ impl Alu {
     pub fn add(self) -> u32 {
         self.0.overflowing_add(self.1).0
     }
-    
-    // // op = 3
-    // pub fn sub(self) -> u32 {
-    //     self.0.overflowing_sub(self.1).0
-    // }
 
     // op = 3
     pub fn less(self) -> u32 {
@@ -105,42 +100,24 @@ mod tests {
         assert_eq!(alu_ovrflw.add(), u32::MAX.overflowing_add(u32::MAX).0)
     }
 
-    // #[test]
-    // fn test_sub() {
-    //     let alu1 = Alu::new(0b1, 0b1);
-    //     assert_eq!(alu1.sub(), 0b1 - 0b1);
-
-    //     let alu2 = Alu::new(0b1, 0b0);
-    //     assert_eq!(alu2.sub(), 0b1 - 0b0);
-
-    //     let alu3 = Alu::new(0b0, 0b1);
-    //     assert_eq!(alu3.sub(), (0b0 - 0b1) as u32);
-
-    //     let alu4 = Alu::new(0b0, 0b0);
-    //     assert_eq!(alu4.sub(), 0b0 - 0b0);
-
-    //     let alu_big = Alu::new(3452, 23555);
-    //     assert_eq!(alu_big.sub(), (3452 - 23555) as u32);
-    // }
-
     #[test]
     fn test_less() {
-        let alu1 = Alu::new(0b1, 0b1);
+        let alu1 = Alu::new(0b1, !0b1 + 1);
         assert_eq!(alu1.less(), 0);
 
-        let alu2 = Alu::new(0b1, 0b0);
+        let alu2 = Alu::new(0b1, (!0b0 as u32).overflowing_add(1).0);
         assert_eq!(alu2.less(), 0);
 
-        let alu3 = Alu::new(0b0, 0b1);
+        let alu3 = Alu::new(0b0, !0b1 + 1);
         assert_eq!(alu3.less(), 1);
 
-        let alu4 = Alu::new(0b0, 0b0);
+        let alu4 = Alu::new(0b0, (!0b0 as u32).overflowing_add(1).0);
         assert_eq!(alu4.less(), 0);
 
-        let alu_big1 = Alu::new(1234, 23);
+        let alu_big1 = Alu::new(1234, !23 + 1);
         assert_eq!(alu_big1.less(), 0);
 
-        let alu_big2 = Alu::new(1234, 12223);
+        let alu_big2 = Alu::new(1234, !12223 + 1);
         assert_eq!(alu_big2.less(), 1);
     }
 
