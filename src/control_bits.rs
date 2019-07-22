@@ -24,6 +24,7 @@ pub struct ControlBits {
     // extra
     pub not_res: u8,
     pub mem_by_byte: u8,
+    pub imm_upper: u8,
 }
 
 impl Default for ControlBits {
@@ -44,6 +45,7 @@ impl Default for ControlBits {
 
             not_res: 0,
             mem_by_byte: 0,
+            imm_upper: 0,
         }
     }
 }

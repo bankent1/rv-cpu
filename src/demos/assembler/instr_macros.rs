@@ -206,6 +206,15 @@ pub fn ORI(RT: u8, RS: u8, imm16: u16) -> u32 {
     return opcode | rs | rt | imm32;
 }
 
+pub fn LUI(RT: u8, imm16: u16) -> u32 {
+    let opcode = 0x0F << 26;
+    let rs = 0 << 21;
+    let rt = (RT as u32) << 16;
+    let imm32 = imm16 as u32;
+
+    return opcode | rs | rt | imm32;
+}
+
 pub fn LB(RT: u8, addr_offset: u16, RS: u8) -> u32 {
     let opcode = 0x20 << 26;
     let rs = (RS as u32) << 21;
@@ -241,6 +250,7 @@ pub fn SW(RT: u8, addr_offset: u16, RS: u8) -> u32 {
 
     return opcode | rs | rt | addr;
 }
+
 
 
 #[cfg(test)]
@@ -363,6 +373,12 @@ mod tests {
     fn test_ORI() {
         let instr1 = ORI(T0(), T1(), 0x42);
         assert_eq!(instr1, 0x35280042);
+    }
+
+    #[test]
+    fn test_LUI() {
+        let instr1 = LUI(T0(), 0xaaa4);
+        assert_eq!(instr1, 0x3C08AAA4);
     }
 
     #[test]

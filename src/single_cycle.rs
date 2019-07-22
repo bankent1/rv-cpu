@@ -12,14 +12,13 @@ use crate::phases::*;
 use crate::instruction::Instruction;
 use crate::control_bits::ControlBits;
 
-pub fn start(instr_mem: &instr_mem::Memory, debug: bool) {
+pub fn start(instr_mem: &instr_mem::Memory, data_mem: &mut data_mem::Memory, debug: bool) {
     if debug {
         println!("Debug Mode: ON");
     }
 
     // let mut instr_mem = instr_mem::Memory::new();
     let mut regfile = reg_file::Registers::new();
-    let mut data_mem = data_mem::Memory::new();
 
     let mem_size = instr_mem::Memory::get_size();
     let mut ip: u32 = 0;
@@ -47,7 +46,7 @@ pub fn start(instr_mem: &instr_mem::Memory, debug: bool) {
 
         // mem phase
         let write_val = regfile.load(instr_struct.rt as usize);
-        let wbval = match mem_phase(&ctrl_bits, &mut data_mem, alu_res as usize, write_val) {
+        let wbval = match mem_phase(&ctrl_bits, data_mem, alu_res as usize, write_val) {
             Some(res) => res,
             None => 0
         };
@@ -77,8 +76,12 @@ fn get_alu_in1(regfile: &reg_file::Registers, instr: &Instruction) -> u32 {
 
 fn get_alu_in2(regfile: &reg_file::Registers, instr: &Instruction, ctrl: &ControlBits) -> u32 {
     // TODO: support unsigned imm
-    if ctrl.reg_dst == 1 {
-        return instr.imm16 as u32;
+    if ctrl.reg_dst == 0 {
+        if ctrl.imm_upper == 1 {
+            return (instr.imm16 as u32) << 16;
+        } else {
+            return instr.imm16 as u32;
+        }
     } else {
         return regfile.load(instr.rt as usize);
     }
@@ -105,8 +108,14 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.mem_write = 0;
             ctrl.mem_to_reg = 0;
             ctrl.mem_by_byte = 0;
+            ctrl.imm_upper = 0;
             match instr.funct {
-                0x00 => panic!("Error: Unsupported FUNCT [0x00 (sll)"), // sll
+                // 0x00 => panic!("Error: Unsupported FUNCT [0x00 (sll)"), // sll
+                0x00 => { // sll, NOP for now
+                    ctrl.alu_op = 0;
+                    ctrl.alu_bnegate = 0;
+                    ctrl.not_res = 0;
+                }
                 0x02 => panic!("Error: Unsupported FUNCT [0x02 (srl)"), // srl
                 0x03 => panic!("Error: Unsupported FUNCT [0x03 (sra)"), // sra
                 0x08 => panic!("Error: Unsupported FUNCT [0x08 (jr)]"), // jr
@@ -186,6 +195,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 0; // TODO: alu op for jump
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x03 => panic!("Error: Unsupported OPCODE [0x03 (jal)]"),
         0x04 => { // beq
@@ -203,6 +213,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 4;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 1;
+            ctrl.imm_upper = 0;
         },
         0x05 => { // bne
             ctrl.reg_dst = 0;
@@ -219,6 +230,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 4;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x08 => { // addi
             ctrl.reg_dst = 0;
@@ -235,6 +247,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 2;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x09 => { // addiu
             ctrl.reg_dst = 0;
@@ -251,6 +264,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 2;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x0A => { // slti
             ctrl.reg_dst = 1;
@@ -267,6 +281,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 3;
             ctrl.alu_bnegate = 1;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x0B => { // sltiu
             ctrl.reg_dst = 1;
@@ -283,6 +298,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 3;
             ctrl.alu_bnegate = 1;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x0C => { // andi
             ctrl.reg_dst = 0;
@@ -299,6 +315,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 0;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x0D => { // ori
             ctrl.reg_dst = 0;
@@ -315,8 +332,25 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 1;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
-        0x0F => panic!("Error: Unsupported OPCODE [0x0F (lui)]"),
+        0x0F => { // lui
+            ctrl.reg_dst = 0;
+            ctrl.reg_write = 1;
+
+            ctrl.branch = 0;
+            ctrl.jump = 0;
+
+            ctrl.mem_read = 0;
+            ctrl.mem_write = 0;
+            ctrl.mem_to_reg = 0;
+            ctrl.mem_by_byte = 0;
+
+            ctrl.alu_op = 1;
+            ctrl.alu_bnegate = 0;
+            ctrl.not_res = 0;
+            ctrl.imm_upper = 1;
+        },
         0x20 => { // lb
             ctrl.reg_dst = 0;
             ctrl.reg_write = 1;
@@ -332,6 +366,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 2;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x23 => { // lw
             ctrl.reg_dst = 0;
@@ -348,6 +383,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 2;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x28 => { // sb
             ctrl.reg_dst = 0;
@@ -364,6 +400,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 2;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         0x2B => { // sw
             ctrl.reg_dst = 0;
@@ -380,6 +417,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.alu_op = 2;
             ctrl.alu_bnegate = 0;
             ctrl.not_res = 0;
+            ctrl.imm_upper = 0;
         },
         opcode => panic!("Error: Unsupported OPCODE [{:X}]", opcode)
     };

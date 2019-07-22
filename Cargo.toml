@@ -1,5 +1,5 @@
 [package]
-name = "rust-cpu"
+name = "rvp"
 version = "0.1.0"
 authors = ["bankent1 <bankent1@email.arizona.edu>"]
 edition = "2018"
