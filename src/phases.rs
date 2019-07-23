@@ -66,7 +66,6 @@ pub fn execute_alu(alu_op: u8, alu_in1: u32, alu_in2: u32, bnegate: u8) -> u32 {
  */
 pub fn mem_phase(ctrl: &ControlBits, mem: &mut data_mem::Memory, addr: usize, write_val: u32) -> Option<u32> {
     if ctrl.mem_read == 1 {
-        // println!("Reading from memory");
         // read by byte or word
         if ctrl.mem_by_byte == 1 {
             return Some(mem.read(addr) as u32);
@@ -74,7 +73,6 @@ pub fn mem_phase(ctrl: &ControlBits, mem: &mut data_mem::Memory, addr: usize, wr
             return Some(read_word(&mem, addr));
         }
     } else if ctrl.mem_write == 1 {
-        println!("> Writing to memory");
         // write by byte or word
         if ctrl.mem_by_byte == 1 {
             mem.write(write_val as u8, addr);

@@ -1,9 +1,9 @@
 /*
- * demo1.rs
+ * demo2.rs
  * 
  * Author: Travis Banken
  * 
- * Writes 0xcafebabe into address 0x42
+ * writes 42 in the first 256 bytes in memory
  */
 #![allow(dead_code)]
 
@@ -17,7 +17,7 @@ use crate::tools::dump_instr_mem;
 use crate::tools::dump_data_mem;
 
 pub fn start(debug: bool, mem_dump: bool) {
-    println!("Running Demo 1...");
+    println!("Runnning Demo 2...");
     let mut instr_mem = instr_mem::Memory::new();
     let mut data_mem = data_mem::Memory::new();
 
@@ -36,11 +36,20 @@ pub fn start(debug: bool, mem_dump: bool) {
 fn load_instr(mem: instr_mem::Memory) -> instr_mem::Memory {
     let mut loader = MemLoader::new(mem);
 
-    loader.load_instr( ADDI(T0(), ZERO(), 0xbabe) );
-    loader.load_instr( LUI (T1(),         0xcafe) );
-    loader.load_instr( OR  (T0(), T1()  , T0()  ) );
-    loader.load_instr( ADDI(S0(), ZERO(), 0x42  ) );
-    loader.load_instr( SW  (T0(), 0     , S0()  ) );
+    // s0 = *mem
+    loader.load_instr( ADD (S0(), ZERO(), ZERO()) );
+    loader.load_instr( ADDI(S7(), ZERO(), 256)    );
+    loader.load_instr( ADDI(T1(), ZERO(), 0x42)   );
+
+// LOOP:
+    loader.load_instr( SLT (T0(), S7()  , S0())   );
+    loader.load_instr( BNE (T0(), ZERO(), (loader.get_ip() + 4*5) as u16)); // j END_LOOP
+
+    loader.load_instr( SB  (T1(), 0     , S0())   );
+    loader.load_instr( ADDI(S0(), S0()  , 1)      );
+
+    loader.load_instr( J   ((loader.get_ip() - 4*5) as u32)); // j LOOP
+// END_LOOP:
 
     return loader.return_mem();
 }

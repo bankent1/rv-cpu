@@ -26,6 +26,11 @@ pub fn start(instr_mem: &instr_mem::Memory, data_mem: &mut data_mem::Memory, deb
         // Fetch instruction
         let instr_raw = instr_fetch(&instr_mem, ip as usize);
 
+        if debug {
+            println!("> Instruction Pointer: {:x}", ip);
+            println!("> Instruction: {:x}", instr_raw);
+        }
+
         // decode instruction
         let mut instr_struct = Instruction::default();
         instr_decode(instr_raw, &mut instr_struct);

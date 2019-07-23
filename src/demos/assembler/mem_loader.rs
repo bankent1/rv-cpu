@@ -5,6 +5,7 @@
  * 
  * Helper functions to write instructions into memory
  */
+#![allow(dead_code)]
 
 use crate::hardware::instr_mem::Memory;
 
@@ -43,5 +44,9 @@ impl MemLoader {
             new_mem.write(self.mem.read(i), i);
         }
         return new_mem;
+    }
+
+    pub fn get_ip(&self) -> usize {
+        return self.addr;
     }
 } 

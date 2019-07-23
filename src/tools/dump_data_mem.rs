@@ -16,7 +16,11 @@ pub fn dump_as_txt(mem: &Memory) {
     println!("             Data Memory              ");
     println!("======================================");
     for addr in 0..size {
-        println!("0x{:08x}:\t0x{:02x}", addr, mem.read(addr));
+        if addr % 4 == 0 {
+            println!();
+        }
+        print!("0x{:08x}: 0x{:02x}", addr, mem.read(addr));
+        print!("  |  ");
     }
-    println!("======================================\n");
+    println!("\n======================================\n");
 }
