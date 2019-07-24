@@ -17,7 +17,7 @@ Install via `rustup` [here](https://www.rust-lang.org/tools/install).
 
 ## Running
 To run the program, first run...  
-**rustc**: `./rvp --help`
+**rustc**: `./rvp --help`  
 or  
 **cargo**: `cargo run -- --help`   
 to see the usage and options for the program.
