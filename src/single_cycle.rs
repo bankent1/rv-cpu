@@ -27,8 +27,8 @@ pub fn start(instr_mem: &instr_mem::Memory, data_mem: &mut data_mem::Memory, deb
         let instr_raw = instr_fetch(&instr_mem, ip as usize);
 
         if debug {
-            println!("> Instruction Pointer: {:x}", ip);
-            println!("> Instruction: {:x}", instr_raw);
+            println!("> Instruction Pointer: 0x{:x}", ip);
+            println!("> Instruction: 0x{:08x}", instr_raw);
         }
 
         // decode instruction
@@ -44,10 +44,11 @@ pub fn start(instr_mem: &instr_mem::Memory, data_mem: &mut data_mem::Memory, deb
         let alu_in2 = get_alu_in2(&regfile, &instr_struct, &ctrl_bits);
         
         let alu_res = execute_alu(ctrl_bits.alu_op, alu_in1, alu_in2, ctrl_bits.alu_bnegate);
+        let alu_zero = if alu_res == 0 {0} else {1};
 
         // not the res of alu if ctrl bit is on
-        let alu_res = if ctrl_bits.not_res == 1 {!alu_res & 0x1} else {alu_res};
-
+        let alu_res = if ctrl_bits.not_res == 1 {!alu_res} else {alu_res};
+        let alu_zero = if ctrl_bits.not_res == 1 {(!alu_zero) & 0x1} else {alu_zero};
 
         // mem phase
         let write_val = regfile.load(instr_struct.rt as usize);
@@ -70,7 +71,7 @@ pub fn start(instr_mem: &instr_mem::Memory, data_mem: &mut data_mem::Memory, deb
             0 // addr not needed
         };
 
-        ip = calc_ip(&ctrl_bits, ip, addr);
+        ip = calc_ip(&ctrl_bits, ip, addr, alu_zero);
     }
 }
 
@@ -80,7 +81,6 @@ fn get_alu_in1(regfile: &reg_file::Registers, instr: &Instruction) -> u32 {
 }
 
 fn get_alu_in2(regfile: &reg_file::Registers, instr: &Instruction, ctrl: &ControlBits) -> u32 {
-    // TODO: support unsigned imm
     if ctrl.reg_dst == 0 {
         if ctrl.imm_upper == 1 {
             return (instr.imm16 as u32) << 16;
@@ -92,11 +92,11 @@ fn get_alu_in2(regfile: &reg_file::Registers, instr: &Instruction, ctrl: &Contro
     }
 }
 
-fn calc_ip(ctrl: &ControlBits, ip: u32, addr: u32) -> u32 {
-    if ctrl.branch == 1 {
+fn calc_ip(ctrl: &ControlBits, ip: u32, addr: u32, alu_zero: u32) -> u32 {
+    if ctrl.branch == 1 && alu_zero == 1 {
         return (ip & 0xffff_0000) | addr; // addr only 16 bits max
     } else if ctrl.jump == 1 {
-        return (ip & 0xf000_0000) | (addr << 2); // addr 28 bit max 
+        return (ip & 0xff00_0000) | addr; // addr 28 bit max 
     } else {
         return ip + 4;
     }
@@ -204,7 +204,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
         },
         0x03 => panic!("Error: Unsupported OPCODE [0x03 (jal)]"),
         0x04 => { // beq
-            ctrl.reg_dst = 0;
+            ctrl.reg_dst = 1;
             ctrl.reg_write = 0;
 
             ctrl.branch = 1;
@@ -221,7 +221,7 @@ fn fill_control_bits(ctrl: &mut ControlBits, instr: &Instruction) {
             ctrl.imm_upper = 0;
         },
         0x05 => { // bne
-            ctrl.reg_dst = 0;
+            ctrl.reg_dst = 1;
             ctrl.reg_write = 0;
 
             ctrl.branch = 1;

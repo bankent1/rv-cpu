@@ -6,6 +6,7 @@
  * writes 42 in the first 256 bytes in memory
  */
 #![allow(dead_code)]
+#![allow(non_snake_case)]
 
 use crate::demos::assembler::reg_macros::*;
 use crate::demos::assembler::instr_macros::*;
@@ -41,14 +42,15 @@ fn load_instr(mem: instr_mem::Memory) -> instr_mem::Memory {
     loader.load_instr( ADDI(S7(), ZERO(), 256)    );
     loader.load_instr( ADDI(T1(), ZERO(), 0x42)   );
 
+    let LOOP = loader.get_ip() as u32;
 // LOOP:
-    loader.load_instr( SLT (T0(), S7()  , S0())   );
-    loader.load_instr( BNE (T0(), ZERO(), (loader.get_ip() + 4*5) as u16)); // j END_LOOP
+    loader.load_instr( SLT (T0(), S0()  , S7())   );
+    loader.load_instr( BEQ (T0(), ZERO(), (LOOP + 5*4) as u16)); // j END_LOOP
 
     loader.load_instr( SB  (T1(), 0     , S0())   );
     loader.load_instr( ADDI(S0(), S0()  , 1)      );
 
-    loader.load_instr( J   ((loader.get_ip() - 4*5) as u32)); // j LOOP
+    loader.load_instr( J   (LOOP)                  ); // j LOOP
 // END_LOOP:
 
     return loader.return_mem();
